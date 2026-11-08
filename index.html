@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<title>StudyNotes</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--tx:#17211f;--mu:#64726f;--ac:#0f766e;--bd:#dde4e2;--ln:#cfe0dc;--pg:#fffef9}
+:root.dk{--bg:#101615;--card:#18211f;--tx:#e6efed;--mu:#8fa09c;--ac:#2dd4bf;--bd:#2a3633;--ln:#2c3a37;--pg:#141c1a}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font:15px system-ui,sans-serif;background:var(--bg);color:var(--tx);display:flex;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;min-height:36px}
+button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+input,select{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+#side{width:320px;max-width:100%;border-right:1px solid var(--bd);display:flex;flex-direction:column;background:var(--card)}
+#side header{padding:12px;display:flex;gap:8px;align-items:center}
+#side h1{font-size:18px;margin:0;flex:1;color:var(--ac)}
+#q{margin:0 12px 8px}
+#subs{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto}
+#subs button{white-space:nowrap;border-radius:99px;font-size:13px}
+#list{flex:1;overflow:auto;padding:0 12px 12px}
+.nt{padding:10px;border:1px solid var(--bd);border-left:5px solid var(--c);border-radius:10px;margin-bottom:8px;cursor:pointer;background:var(--bg)}
+.nt.sel{outline:2px solid var(--ac)}.nt b{display:block}.nt small{color:var(--mu)}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+#tb{background:var(--card);border-bottom:1px solid var(--bd);padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#tb .g{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+#ti{flex:1;min-width:140px;font-weight:600;font-size:17px}
+.sw{width:26px;height:26px;border-radius:50%;padding:0;min-height:0;border:2px solid var(--bd)}.sw.on{border:3px solid var(--tx)}
+#scr{flex:1;overflow:auto;padding:14px}
+#wrap{position:relative;max-width:900px;margin:0 auto;background:var(--pg);border:1px solid var(--bd);border-radius:6px;box-shadow:0 2px 12px #0002}
+#pg{min-height:1400px;padding:20px 28px;outline:none;line-height:32px;font-size:17px;position:relative}
+#pg.lined{background-image:repeating-linear-gradient(transparent 0 31px,var(--ln) 31px 32px);background-position:0 20px}
+#pg.grid{background-image:linear-gradient(var(--ln) 1px,transparent 1px),linear-gradient(90deg,var(--ln) 1px,transparent 1px);background-size:28px 28px}
+#pg h2{margin:0;line-height:32px;font-size:22px}#pg ul,#pg ol{margin:0;padding-left:26px}
+#pg mark{background:#fde047aa;color:inherit}#pg input[type=checkbox]{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+#cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#wrap.ink #cv{pointer-events:auto;touch-action:none}#wrap.ink.po #cv{touch-action:pan-y}
+#empty{margin:auto;color:var(--mu);text-align:center}
+.hid{display:none!important}#back{display:none}
+@media(max-width:760px){#side{width:100%}#main{display:none;width:100%}body.ed #side{display:none}body.ed #main{display:flex}#back{display:inline-block}#pg{padding:14px}}
+@media print{#side,#tb{display:none!important}body{display:block}#scr{overflow:visible}#wrap{box-shadow:none;border:0}}
+
+/* focus mode + sliding drawer */
+#edge,#scrim,#tab{display:none}
+body.fc #side{display:none}
+body.fc #edge{display:block;position:fixed;left:0;top:0;bottom:0;width:22px;z-index:40;touch-action:none}
+body.fc #tab{display:block;position:fixed;left:0;top:50%;width:14px;height:64px;margin-top:-32px;border-radius:0 10px 10px 0;background:var(--ac);opacity:.55;z-index:41;pointer-events:none}
+body.fc #scrim{position:fixed;inset:0;background:#0006;z-index:49;opacity:0;pointer-events:none;transition:opacity .25s;display:block}
+body.fc #scrim.open{opacity:1;pointer-events:auto}
+body.fc #tb{position:fixed;left:0;top:0;bottom:0;width:min(300px,86vw);z-index:50;flex-direction:column;align-items:stretch;flex-wrap:nowrap;overflow:auto;padding:calc(12px + env(safe-area-inset-top)) 12px 12px;transform:translateX(-105%);transition:transform .25s;box-shadow:4px 0 24px #0005;touch-action:pan-y}
+body.fc #tb.open{transform:none}
+body.fc #tb input,body.fc #tb select{width:100%;min-width:0}
+body.fc #scr{padding:6px}body.fc #wrap{max-width:1100px}
+</style></head><body>
+<aside id="side">
+ <header><h1>📚 StudyNotes</h1><button id="nn" class="on">+ Note</button><button id="mn">⋯</button></header>
+ <input id="q" type="search" placeholder="Search notes…">
+ <div id="subs"></div><div id="list"></div>
+</aside>
+<section id="main">
+ <div id="empty">Select or create a note<br><small>Works offline · stylus ready</small></div>
+ <div id="tb" class="hid">
+  <button id="back">←</button><input id="ti" placeholder="Title"><select id="sj"></select>
+  <div class="g"><button id="fc" title="Focus mode: page only. Swipe from left edge for options">⛶ Focus</button><button id="mode">✏️ Draw</button><button id="paper">▤ Paper</button><button id="pin">📌</button><button id="del">🗑</button></div>
+  <div class="g" id="txt">
+   <button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button>
+   <button data-c="hiliteColor">🖍</button><button data-c="h2">H</button><button data-c="insertUnorderedList">• List</button><button data-c="insertOrderedList">1.</button><button data-c="chk">☑</button>
+  </div>
+  <div class="g hid" id="ink">
+   <button data-t="pen" class="on">🖊 Pen</button><button data-t="hl">🖍 Marker</button><button data-t="er">🧽 Erase</button>
+   <span id="cols"></span><input id="sz" type="range" min="1" max="12" value="3" style="width:80px;padding:0">
+   <button id="un">↶</button><button id="re">↷</button><button id="po" title="Ignore finger touch (palm rejection)">🖐 Pen only</button><button id="clr">Clear ink</button>
+  </div>
+  <small id="wc" style="color:var(--mu)"></small>
+ </div>
+ <div id="scr" class="hid"><div id="wrap"><div id="pg" contenteditable="true"></div><canvas id="cv"></canvas></div>
+  <div style="text-align:center;margin:12px"><button id="addp">+ Add page length</button></div></div>
+</section>
+<div id="scrim"></div><div id="edge"></div><div id="tab"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const COLS=['#111111','#2563eb','#dc2626','#16a34a','#9333ea','#f59e0b'];
+let D={notes:[],subs:[{n:'General',c:'#0f766e'},{n:'Physics',c:'#2563eb'},{n:'Chemistry',c:'#f59e0b'},{n:'Biology',c:'#16a34a'},{n:'Maths',c:'#9333ea'}],dark:null,pen:false};
+let cur=null,F='All',Q='',ink=false,tool='pen',col=COLS[1],act=[],rdo=[],drawing=false,cs=null,W=1,H=1;
+const idb=new Promise(r=>{try{const q=indexedDB.open('sn',1);q.onupgradeneeded=()=>q.result.createObjectStore('k');q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}});
+async function load(){try{const d=await idb;return await new Promise(r=>{const q=d.transaction('k').objectStore('k').get('d');q.onsuccess=()=>r(q.result);q.onerror=()=>r()})}catch(e){}}
+let st;function sv(){clearTimeout(st);st=setTimeout(async()=>{try{const d=await idb;d.transaction('k','readwrite').objectStore('k').put(D,'d')}catch(e){}},300)}
+const note=()=>D.notes.find(n=>n.id===cur);
+const subC=n=>(D.subs.find(s=>s.n===n)||{c:'#0f766e'}).c;
+function theme(){const d=D.dark??matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.classList.toggle('dk',d)}
+function renderSubs(){const a=['All',...D.subs.map(s=>s.n)];$('#subs').innerHTML=a.map(n=>`<button data-s="${n}" class="${n===F?'on':''}">${n}</button>`).join('')+'<button data-s="+">＋</button>';
+ $('#sj').innerHTML=D.subs.map(s=>`<option>${s.n}</option>`).join('')}
+function renderList(){const q=Q.toLowerCase();
+ const L=D.notes.filter(n=>(F==='All'||n.sub===F)&&(!q||(n.title+' '+n.html.replace(/<[^>]+>/g,' ')).toLowerCase().includes(q))).sort((a,b)=>b.pin-a.pin||b.t-a.t);
+ $('#list').innerHTML=L.map(n=>`<div class="nt ${n.id===cur?'sel':''}" data-id="${n.id}" style="--c:${subC(n.sub)}"><b>${n.pin?'📌 ':''}${esc(n.title||'Untitled')}</b><small>${n.sub} · ${new Date(n.t).toLocaleDateString()}${n.strokes.length?' · ✏️':''}</small></div>`).join('')||'<p style="color:var(--mu)">No notes yet.</p>'}
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function newNote(){const n={id:Date.now().toString(36),title:'',sub:F==='All'?'General':F,html:'',strokes:[],h:1400,paper:'lined',pin:false,t:Date.now()};D.notes.push(n);sv();open(n.id)}
+function open(id){cur=id;const n=note();act=[];rdo=[];
+ ['#tb','#scr'].forEach(s=>$(s).classList.remove('hid'));$('#empty').classList.add('hid');document.body.classList.add('ed');
+ $('#ti').value=n.title;$('#sj').value=n.sub;$('#pg').innerHTML=n.html;$('#pg').className=n.paper;$('#pg').style.minHeight=n.h+'px';$('#pin').classList.toggle('on',n.pin);
+ words();fit();renderList()}
+function words(){const t=$('#pg').innerText.trim();$('#wc').textContent=(t?t.split(/\s+/).length:0)+' words'}
+// ---------- ink
+const cv=$('#cv'),cx=cv.getContext('2d');
+function fit(){W=$('#wrap').clientWidth;H=$('#wrap').clientHeight;const d=devicePixelRatio||1;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);redraw()}
+new ResizeObserver(()=>{if(cur)fit()}).observe($('#wrap'));
+function seg(s,i){const a=s.p[i-1],b=s.p[i];cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle=s.c;cx.lineWidth=s.w*(.5+b[2]);cx.beginPath();cx.moveTo(a[0]*W,a[1]*W);cx.lineTo(b[0]*W,b[1]*W);cx.stroke()}
+function stroke(s){if(s.p.length<2){const p=s.p[0];cx.fillStyle=s.c;cx.globalAlpha=s.k==='hl'?.35:1;cx.beginPath();cx.arc(p[0]*W,p[1]*W,s.w/2*(s.k==='hl'?4:1),0,7);cx.fill();cx.globalAlpha=1;return}
+ if(s.k==='hl'){cx.globalAlpha=.35;cx.lineCap='butt';cx.lineJoin='round';cx.strokeStyle=s.c;cx.lineWidth=s.w*4;cx.beginPath();s.p.forEach((p,i)=>i?cx.lineTo(p[0]*W,p[1]*W):cx.moveTo(p[0]*W,p[1]*W));cx.stroke();cx.globalAlpha=1}
+ else for(let i=1;i<s.p.length;i++)seg(s,i)}
+function redraw(){cx.clearRect(0,0,W,H);const n=note();if(!n)return;n.strokes.forEach(stroke);if(cs)stroke(cs)}
+const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/W,(e.clientY-r.top)/W,e.pointerType==='mouse'?.5:(e.pressure||.5)]};
+function erase(p){const n=note(),r=14/W;for(let i=n.strokes.length-1;i>=0;i--){if(n.strokes[i].p.some(q=>Math.hypot(q[0]-p[0],q[1]-p[1])<r)){act.push({t:'del',s:n.strokes[i],i});n.strokes.splice(i,1);rdo=[];redraw();sv();return}}}
+cv.onpointerdown=e=>{if(!ink||(D.pen&&e.pointerType==='touch'))return;e.preventDefault();cv.setPointerCapture(e.pointerId);drawing=true;const p=pt(e);
+ if(tool==='er'){erase(p);return}cs={c:col,w:+$('#sz').value,k:tool,p:[p]};redraw()};
+cv.onpointermove=e=>{if(!drawing)return;e.preventDefault();
+ const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];for(const ev of evs){const p=pt(ev);if(tool==='er'){erase(p);continue}cs.p.push(p);if(cs.k==='pen')seg(cs,cs.p.length-1)}
+ if(cs&&cs.k==='hl')redraw()};
+const end=()=>{if(!drawing)return;drawing=false;if(cs){note().strokes.push(cs);act.push({t:'add'});rdo=[];note().t=Date.now();cs=null;sv()}};
+cv.onpointerup=cv.onpointercancel=end;
+$('#un').onclick=()=>{const a=act.pop(),n=note();if(!a)return;if(a.t==='add')a.s=n.strokes.pop();else n.strokes.splice(a.i,0,a.s);rdo.push(a);redraw();sv()};
+$('#re').onclick=()=>{const a=rdo.pop(),n=note();if(!a)return;if(a.t==='add')n.strokes.push(a.s);else n.strokes.splice(a.i,1);act.push(a);redraw();sv()};
+$('#clr').onclick=()=>{if(confirm('Erase all ink on this note?')){note().strokes=[];act=[];rdo=[];redraw();sv()}};
+$('#cols').innerHTML=COLS.map(c=>`<button class="sw ${c===col?'on':''}" data-col="${c}" style="background:${c}"></button>`).join('');
+$('#cols').onclick=e=>{const c=e.target.dataset.col;if(!c)return;col=c;$$('.sw').forEach(b=>b.classList.toggle('on',b.dataset.col===c));if(tool==='er')setTool('pen')};
+function setTool(t){tool=t;$$('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t))}
+$('#ink').addEventListener('click',e=>{const t=e.target.dataset.t;if(t)setTool(t)});
+function setInk(v){ink=v;$('#wrap').classList.toggle('ink',v);$('#ink').classList.toggle('hid',!v);$('#txt').classList.toggle('hid',v);$('#mode').textContent=v?'⌨️ Type':'✏️ Draw';$('#mode').classList.toggle('on',v);$('#pg').contentEditable=!v}
+$('#mode').onclick=()=>setInk(!ink);
+$('#po').classList.toggle('on',D.pen);
+$('#po').onclick=()=>{D.pen=!D.pen;$('#po').classList.toggle('on',D.pen);$('#wrap').classList.toggle('po',D.pen);sv()};
+// auto-switch to ink when a pen touches the page
+$('#wrap').addEventListener('pointerdown',e=>{if(e.pointerType==='pen'&&!ink&&cur)setInk(true)},true);
+// ---------- text
+$('#txt').onclick=e=>{const b=e.target.closest('button');if(!b)return;const c=b.dataset.c;$('#pg').focus();
+ if(c==='h2')document.execCommand('formatBlock',false,document.queryCommandValue('formatBlock')==='h2'?'div':'h2');
+ else if(c==='chk')document.execCommand('insertHTML',false,'<input type="checkbox">&nbsp;');
+ else if(c==='hiliteColor')document.execCommand('hiliteColor',false,'#fde04788');
+ else document.execCommand(c);upd()};
+$('#pg').addEventListener('change',e=>{if(e.target.type==='checkbox'){e.target.toggleAttribute('checked',e.target.checked);upd()}});
+function upd(){const n=note();n.html=$('#pg').innerHTML;n.t=Date.now();words();sv();const h=$('#pg').scrollHeight;if(h>n.h){n.h=h}}
+$('#pg').oninput=()=>{upd();clearTimeout(upd.r);upd.r=setTimeout(renderList,500)};
+$('#ti').oninput=e=>{note().title=e.target.value;sv();renderList()};
+$('#sj').onchange=e=>{note().sub=e.target.value;sv();renderList()};
+$('#paper').onclick=()=>{const n=note(),o=['lined','grid','blank'];n.paper=o[(o.indexOf(n.paper)+1)%3];$('#pg').className=n.paper;sv()};
+$('#pin').onclick=()=>{const n=note();n.pin=!n.pin;$('#pin').classList.toggle('on',n.pin);sv();renderList()};
+$('#del').onclick=()=>{if(!confirm('Delete this note?'))return;D.notes=D.notes.filter(n=>n.id!==cur);cur=null;sv();['#tb','#scr'].forEach(s=>$(s).classList.add('hid'));$('#empty').classList.remove('hid');document.body.classList.remove('ed');renderList()};
+$('#addp').onclick=()=>{const n=note();n.h+=1000;$('#pg').style.minHeight=n.h+'px';sv()};
+$('#back').onclick=()=>{document.body.classList.remove('ed')};
+// ---------- side
+$('#nn').onclick=newNote;$('#q').oninput=e=>{Q=e.target.value;renderList()};
+$('#list').onclick=e=>{const n=e.target.closest('.nt');if(n)open(n.dataset.id)};
+$('#subs').onclick=e=>{const s=e.target.dataset.s;if(!s)return;if(s==='+'){const n=prompt('New subject name?');if(n&&!D.subs.some(x=>x.n===n)){D.subs.push({n,c:COLS[(D.subs.length+1)%COLS.length]});sv()}}else F=s;renderSubs();renderList()};
+$('#mn').onclick=()=>{const c=prompt('Type: 1 = Dark/Light theme, 2 = Export backup, 3 = Import backup, 4 = Print / save PDF');
+ if(c==='1'){D.dark=!document.documentElement.classList.contains('dk');theme();sv()}
+ else if(c==='2'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D)],{type:'application/json'}));a.download='studynotes-backup.json';a.click()}
+ else if(c==='3'){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=async()=>{try{const d=JSON.parse(await i.files[0].text());if(!Array.isArray(d.notes))throw 0;D=d;sv();location.reload()}catch(e){alert('Invalid backup file')}};i.click()}
+ else if(c==='4'){if(cur)print();else alert('Open a note first')}};
+
+// ---------- focus mode + swipe drawer
+const tb=$('#tb');
+function drawer(o){tb.classList.toggle('open',o);$('#scrim').classList.toggle('open',o)}
+function focus(v){document.body.classList.toggle('fc',v);drawer(false);$('#fc').textContent=v?'⛶ Exit focus':'⛶ Focus';setTimeout(fit,50)}
+$('#fc').onclick=()=>focus(!document.body.classList.contains('fc'));
+let sx=null;
+$('#edge').addEventListener('pointerdown',e=>{sx=e.clientX;$('#edge').setPointerCapture(e.pointerId)});
+$('#edge').addEventListener('pointermove',e=>{if(sx!==null&&e.clientX-sx>30){sx=null;drawer(true)}});
+$('#edge').addEventListener('pointerup',()=>{if(sx!==null){sx=null;drawer(true)}});
+$('#scrim').onclick=()=>drawer(false);
+let tx=null;
+tb.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+tb.addEventListener('touchend',e=>{if(tx!==null&&tx-e.changedTouches[0].clientX>60&&document.body.classList.contains('fc'))drawer(false);tx=null});
+$('#back').addEventListener('click',()=>focus(false));
+$('#del').addEventListener('click',()=>{if(!cur)focus(false)});
+// sync: also open from keyboard
+addEventListener('keydown',e=>{if(e.key==='Escape')drawer(false)});
+(async()=>{const d=await load();if(d)D=d;theme();$('#wrap').classList.toggle('po',!!D.pen);$('#po').classList.toggle('on',!!D.pen);renderSubs();renderList();
+ if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+ navigator.storage&&navigator.storage.persist&&navigator.storage.persist()})();
+</script></body></html>
